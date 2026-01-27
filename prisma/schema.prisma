@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// --- SECCIÓN DE MONITOREO (Tus tablas anteriores) ---
+
+model Server {
+  id        Int      @id @default(autoincrement()) @map("server_id")
+  hostname  String   @unique @db.VarChar(100)
+  ipAddress String   @map("ip_address") @db.VarChar(45) @unique
+  osInfo    String?  @map("os_info") @db.VarChar(100)
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz
+
+  healthChecks HealthCheck[]
+  @@map("servers")
+}
+
+model HealthCheck {
+  id        BigInt   @id @default(autoincrement()) @map("check_id")
+  serverId  Int      @map("server_id")
+  cpuUsage  Decimal  @map("cpu_usage") @db.Decimal(5, 2)
+  ramUsage  Decimal  @map("ram_usage") @db.Decimal(5, 2)
+  diskUsage Decimal  @map("disk_usage") @db.Decimal(5, 2)
+  measuredAt DateTime @default(now()) @map("measured_at") @db.Timestamptz
+
+  server       Server       @relation(fields: [serverId], references: [id], onDelete: Cascade)
+  topProcesses TopProcess[]
+
+  @@index([serverId, measuredAt(sort: Desc)], name: "idx_healthchecks_server_time")
+  @@index([measuredAt], name: "idx_healthchecks_measured_at")
+  @@map("health_checks")
+}
+
+model TopProcess {
+  id          BigInt  @id @default(autoincrement()) @map("process_id")
+  checkId     BigInt  @map("check_id")
+  processName String  @map("process_name") @db.VarChar(255)
+  cpuPercent  Decimal @map("cpu_percent") @db.Decimal(5, 2)
+  memPercent  Decimal @map("mem_percent") @db.Decimal(5, 2)
+  pid         Int?     @db.Integer
+  healthCheck HealthCheck @relation(fields: [checkId], references: [id], onDelete: Cascade)
+
+  @@index([checkId], name: "idx_topprocesses_check_id")
+  @@map("top_processes")
+}
+
+// --- SECCIÓN DE AUTENTICACIÓN ---
+
+enum Role {
+  ADMIN
+  VIEWER
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String?
+  email         String    @unique
+  password      String    // Aquí guardaremos el hash (bcrypt/argon2)
+  role          Role      @default(VIEWER)
+  image         String?   // Para el avatar del dashboard
+  createdAt     DateTime?  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@map("users")
+}

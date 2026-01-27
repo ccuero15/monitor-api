@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler", /* Cambia de NodeNext a bundler */
+    "allowImportingTsExtensions": true, /* Opcional: permite usar .ts explícito */
+    "noEmit": true, /* Requerido si usas la opción anterior */
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "ignoreDeprecations": "6.0",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  }
+}
