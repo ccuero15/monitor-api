@@ -5,7 +5,7 @@ import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
 import authenticateAgent from "./middlewares/auth";
 import { IngestDataSchema } from "./schema/health.schema";
-import prisma from "lib/prisma";
+import prisma from "@/lib/prisma";
 import { Prisma } from "generated/prisma/client";
 import healthRoutes from "@/routes/healt";
 dotenv.config();
