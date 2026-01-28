@@ -7,7 +7,7 @@ import authenticateAgent from "./middlewares/auth";
 import { IngestDataSchema } from "./schema/health.schema";
 import prisma from "lib/prisma";
 import { Prisma } from "generated/prisma/client";
-
+import healthRoutes from "@/routes/healt";
 dotenv.config();
 const app = express();
 
@@ -21,9 +21,9 @@ const limiter = rateLimit({
   message: { error: "Too many requests" }
 });
 app.use(limiter);
-
+app.use("/api/v1/health", healthRoutes);
 // --- RUTA DE INGESTA (POST) ---
-app.post("/api/v1/health", authenticateAgent, async (req: Request, res: Response) => {
+/* app.post("/api/v1/health", authenticateAgent, async (req: Request, res: Response) => {
   console.log(`[${new Date().toISOString()}] 📥 Recibida petición de: ${req.body.hostname} (${req.body.ipAddress})`);
   console.log("DB URL cargada:", process.env.DATABASE_URL);
   try {
@@ -85,7 +85,7 @@ app.post("/api/v1/health", authenticateAgent, async (req: Request, res: Response
     console.error("[DATABASE_ERROR]:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
-});
+}); */
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`🚀 Security API running on port ${PORT}`));
